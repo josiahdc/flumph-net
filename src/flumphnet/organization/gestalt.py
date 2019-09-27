@@ -1,11 +1,17 @@
 import redis
-from minecloister import MineCloister
-from stripminer import Strip_Miner
+
+from src.flumphnet import constants
+from src.flumphnet.organization import MineCloister
+from src.flumphnet.stripminer import Strip_Miner
 
 
 class Gestalt:
     def __init__(self):
-        self.red_conn = redis.Redis(host='localhost', port=6379, db=7, decode_responses=True)
+        self.red_conn = redis.Redis(
+            host=constants.REDIS_HOST,
+            port=constants.REDIS_PORT,
+            db=constants.REDIS_DB,
+            decode_responses=True)
         self.cloisters = {}
 
         # get the cloisters and instantiate them

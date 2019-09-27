@@ -18,26 +18,6 @@ class Flumph(ABC):
         """the insertion point, should repeat until connection closes"""
         pass
 
-    def execute(self, api, function, params={}):
-        """call a function on the robot, returns a variable sized array of return values"""
-        call = str(len(params)) + "\n" + api + "\n" + function + "\n"
-        for param, paramType in params.items():
-            call += str(param) + "\n" + paramType + "\n"
-        self.writer.write(str.encode(call))
-        return_vals = []
-        num_of_return_vals = int(self.reader.readline())
-        for iteration in range(num_of_return_vals):
-            val = self.reader.readline()
-            val = val.decode("utf-8")
-            val = val.strip()
-            if val == "nil":
-                val = None
-            elif val == "true":
-                val = True
-            elif val == "false":
-                val = False
-            return_vals.append(val)
-        return return_vals
 
     # command wrappers, use them when possible
     def skip(self):
