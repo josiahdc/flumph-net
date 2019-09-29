@@ -31,7 +31,7 @@ class FlumphAdapter(socketserver.StreamRequestHandler):
         while True:
             transmitter.transmit("robot.forward()")
             logger.debug("sent instruction")
-            print(transmitter.read_string())s
+            print(transmitter.read_string())
             transmitter.transmit("robot.back()")
             logger.debug("sent instruction")
             print(transmitter.read_string())
