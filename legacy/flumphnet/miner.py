@@ -1,4 +1,4 @@
-from src.flumphnet import Flumph
+from legacy.flumphnet import Flumph
 
 class Miner(Flumph):
     def __init__(self, cloister, reader, writer):

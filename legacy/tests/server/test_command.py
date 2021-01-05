@@ -1,4 +1,4 @@
-from src.flumphnet.server.command import Command
+from legacy.flumphnet import Command
 
 
 def test_command_no_params():

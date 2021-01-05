@@ -1,10 +1,19 @@
-version: '3'
+version: "3.8"
+
 services:
   redis:
-    image: redis:5.0.1-alpine
-    command: ["redis-server", "--appendonly", "yes"]
+    image: redis:6.0.9-alpine
     volumes:
-      - flumph-redis:/data
+      - flumph-net-redis:/data
+    ports:
+      - "7740:6379"
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=redis
+    ports:
+      - "7741:8081"
 
 volumes:
-  flumph-redis:
+  flumph-net-redis:

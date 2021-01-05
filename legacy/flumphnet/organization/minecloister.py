@@ -1,4 +1,4 @@
-from src.flumphnet.organization import Cloister
+from legacy.flumphnet.organization import Cloister
 
 
 class MineCloister(Cloister):

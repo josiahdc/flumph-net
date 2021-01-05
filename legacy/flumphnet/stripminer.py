@@ -1,4 +1,4 @@
-from src.flumphnet import Miner
+from legacy.flumphnet import Miner
 
 
 class Strip_Miner(Miner):

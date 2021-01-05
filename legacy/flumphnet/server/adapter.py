@@ -1,9 +1,8 @@
 import logging
 import socketserver
-from time import sleep
 
-from src.flumphnet import constants
-from src.flumphnet.server.transmitter import Transmitter
+from legacy.flumphnet import constants
+from legacy.flumphnet import Transmitter
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)

@@ -1,8 +1,8 @@
 import redis
 
-from src.flumphnet import constants
-from src.flumphnet.organization import MineCloister
-from src.flumphnet.stripminer import Strip_Miner
+from legacy.flumphnet import constants
+from legacy.flumphnet.organization import MineCloister
+from legacy.flumphnet import Strip_Miner
 
 
 class Gestalt:

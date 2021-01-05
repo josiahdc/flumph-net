@@ -1,2 +1,3 @@
 # flumph-net
-Coordination and command server for Minecraft Opencomputers drones
+
+Command and control server for managing Opencomputers robots

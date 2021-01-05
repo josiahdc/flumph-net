@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from src.flumphnet.server.transmitter import Transmitter
+from legacy.flumphnet import Transmitter
 
 
 def test_read_string():
