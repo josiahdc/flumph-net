@@ -15,7 +15,7 @@ class DirectiveFactory:
         return directive
 
     @staticmethod
-    def create_stripmine(db_session, cloister):
+    def create_stripmining_directive(db_session, cloister):
         directive = StripmineDirective(cloister)
         Info.save(db_session, directive)
         return directive

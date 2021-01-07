@@ -25,7 +25,7 @@ class CloisterFactory:
         logger.info(f"creating {cloister_name}")
         cloister = Cloister(cloister_name, origin)
         Info.save(db_session, cloister)
-        directive = DirectiveFactory.create_stripmine(db_session, cloister)
+        directive = DirectiveFactory.create_stripmining_directive(db_session, cloister)
         cloister.set_directive(directive)
         cloister.designate_homes(db_session, 0, CLOISTER_INITIAL_HOME_COUNT)
         return cloister

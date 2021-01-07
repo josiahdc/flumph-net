@@ -35,9 +35,12 @@ class Cloister:
             db_session.add(home)
 
     def assign_home(self, db_session, flumph):
-        logger.info(f"allocating a home for {flumph.name}")
+        logger.info(f"assigning a home to {flumph.name}")
         home = db_session.query(Home).filter(CloisterInfo.name == self.name).filter(Home.flumph_info == None).first()
         if home is None:
             raise NoHomeAvailableError(flumph.name, self.name)
         else:
             home.flumph_info = flumph.retrieve_self_info(db_session)
+
+    def assign_ticket(self, flumph):
+        self._directive.assign_ticket(flumph)

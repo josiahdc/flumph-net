@@ -8,7 +8,7 @@ class Flumph:
         self._cloister = cloister
         self.name = name
         self.location = location
-        self._occupation = None
+        self.occupation = None
 
     def generate_info(self, db_session):
         return FlumphInfo(self._cloister.retrieve_self_info(db_session), self.name, self.location)
@@ -21,7 +21,7 @@ class Flumph:
         return db_session.query(FlumphInfo).filter(FlumphInfo.name == name).one_or_none()
 
     def set_occupation(self, occupation):
-        self._occupation = occupation
+        self.occupation = occupation
 
     def energy(self):
         return int(self._executor.execute_function("computer.energy()")[0])

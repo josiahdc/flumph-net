@@ -9,6 +9,7 @@ class OccupationInfo(DeclarativeBase):
     type = Column(String, nullable=False)
 
     flumph_info = relationship("FlumphInfo", back_populates="occupation_info")
+    ticket_info = relationship("TicketInfo", back_populates="occupation_info")
 
     __mapper_args__ = {
         "polymorphic_identity": "occupation",

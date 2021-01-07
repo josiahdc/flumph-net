@@ -9,6 +9,7 @@ class DirectiveInfo(DeclarativeBase):
     type = Column(String, nullable=False)
 
     cloister_info = relationship("CloisterInfo", back_populates="directive_info")
+    ticket_info = relationship("TicketInfo", back_populates="directive_info", cascade="all, delete-orphan")
 
     __mapper_args__ = {
         "polymorphic_identity": "directive",

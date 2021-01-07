@@ -1,16 +1,7 @@
-from sqlalchemy import Column
-
-from src.orm.orm import DeclarativeBase
-from src.orm.serializable_location import SerializableLocation
+from src.organization.cloister.directive.ticket.stripmining_ticket_info import StripminingTicketInfo
+from src.organization.cloister.directive.ticket.ticket import Ticket
 
 
-class StripminingTicket(DeclarativeBase):
-    origin = Column(SerializableLocation, nullable=False)
-
-    def __init__(self, origin, x_range, z_range, y_range, assigned, completed):
-        self.origin = origin
-        self.x_range = x_range
-        self.z_range = z_range
-        self.y_range = y_range
-        self.assigned = assigned
-        self.completed = completed
+class StripminingTicket(Ticket):
+    def generate_info(self, db_session):
+        return StripminingTicketInfo(self.directive.retrieve_self_info(db_session))

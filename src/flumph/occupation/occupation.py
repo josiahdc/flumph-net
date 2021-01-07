@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from src.flumph.flumph_info import FlumphInfo
 from src.flumph.occupation.occupation_info import OccupationInfo
@@ -15,3 +15,11 @@ class Occupation(ABC):
     def retrieve_info(db_session, flumph_name):
         return db_session.query(OccupationInfo).join(FlumphInfo). \
             filter(FlumphInfo.name == flumph_name).one_or_none()
+
+    @abstractmethod
+    def generate_info(self, db_session):
+        pass
+
+    @abstractmethod
+    def work(self):
+        pass
