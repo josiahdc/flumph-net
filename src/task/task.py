@@ -5,7 +5,7 @@ class Task(ABC):
     """a collection of commands which make up a granular unit of work"""
 
     def __init__(self, flumph):
-        self._flumph = flumph
+        self.flumph = flumph
 
     @abstractmethod
     def perform(self):

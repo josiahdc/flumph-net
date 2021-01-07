@@ -1,16 +1,27 @@
 from src.common.exception import CannotMoveError
+from src.flumph.flumph_info import FlumphInfo
 
 
 class Flumph:
-    """Provides an interface to control the flumph"""
-
-    def __init__(self, executor, location, home):
+    def __init__(self, executor, cloister, name, location):
         self._executor = executor
+        self._cloister = cloister
+        self.name = name
         self.location = location
-        self.home = home
+        self._occupation = None
 
-    def name(self):
-        return self._executor.execute_function("robot.name()")[0]
+    def generate_info(self, db_session):
+        return FlumphInfo(self._cloister.retrieve_self_info(db_session), self.name, self.location)
+
+    def retrieve_self_info(self, db_session):
+        return self.retrieve_info(db_session, self.name)
+
+    @staticmethod
+    def retrieve_info(db_session, name):
+        return db_session.query(FlumphInfo).filter(FlumphInfo.name == name).one_or_none()
+
+    def set_occupation(self, occupation):
+        self._occupation = occupation
 
     def energy(self):
         return int(self._executor.execute_function("computer.energy()")[0])

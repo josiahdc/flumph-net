@@ -1,14 +1,16 @@
-import socketserver
-
-from src.config import FLUMPH_CONNECTION_PORT, FLUMPH_CONNECTION_ADDRESS
-from src.server.flumph_connection import FlumphConnection
+from src.config import FLUMPH_NET_SERVER_PORT, FLUMPH_NET_SERVER_ADDRESS
+from src.organization.gestalt_factory import GestaltFactory
+from src.server.flumph_connection import FlumphNetRequestHandler
+from src.server.flumph_net_server import FlumphNetServer
 
 
 def main():
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer((FLUMPH_CONNECTION_ADDRESS, FLUMPH_CONNECTION_PORT), FlumphConnection) as server:
-        server.serve_forever()
+    FlumphNetServer.allow_reuse_address = True
+    flumph_net_host = (FLUMPH_NET_SERVER_ADDRESS, FLUMPH_NET_SERVER_PORT)
+    gestalt = GestaltFactory.create()
+    with FlumphNetServer(flumph_net_host, FlumphNetRequestHandler, gestalt) as flumph_net_server:
+        flumph_net_server.serve_forever()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

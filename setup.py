@@ -4,8 +4,7 @@ installation_requirements = [
     "loguru==0.5.3",
     "ujson==4.0.1",
     "SLPP==1.2.3",
-    "redis==3.5.3",
-    "hiredis==1.1.0",
+    "SQLAlchemy==1.3.22",
 ]
 
 setup(

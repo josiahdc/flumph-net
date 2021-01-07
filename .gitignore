@@ -105,3 +105,4 @@ venv.bak/
 
 # ide
 .idea/
+/flumph_net_database.sqlite

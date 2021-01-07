@@ -1,12 +1,31 @@
 from src.common.orientation import Orientation
+from src.common.serializable import Serializable
 
 
-class Location:
-    def __init__(self, x, z, y, orientation):
+class Location(Serializable):
+    def __init__(self, x, z, y, orientation, **kwargs):
+        super().__init__(**kwargs)
         self.x = x
         self.z = z
         self.y = y
         self.orientation = orientation
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and self.z == other.z and self.orientation == other.orientation
+
+    def __str__(self):
+        return f"{self.x}, {self.z}, {self.y}, {self.orientation}"
+
+    def serialize(self):
+        return str(self)
+
+    @staticmethod
+    def deserialize(serialized_location):
+        pieces = serialized_location.split(", ")
+        return Location(int(pieces[0]), int(pieces[1]), int(pieces[2]), int(pieces[3]))
+
+    def duplicate(self):
+        return Location(self.x, self.z, self.y, self.orientation)
 
     def forward(self):
         if self.orientation == Orientation.NORTH:
