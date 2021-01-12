@@ -1,21 +1,19 @@
-from src.flumph.occupation.occupation import Occupation
-from src.flumph.occupation.stripminer import Stripminer
-from src.flumph.occupation.stripminer_info import StripminerInfo
-from src.orm.info import Info
+import ujson
+
+from src.flumph.occupation.stripminer_occupation import StripminerOccupation
 
 
 class OccupationFactory:
     @staticmethod
-    def recover(db_session, flumph):
-        occupation_info = Occupation.retrieve_info(db_session, flumph.name)
-        if isinstance(occupation_info, StripminerInfo):
-            occupation = Stripminer(flumph)
+    def recover(hoard, flumph):
+        data = hoard.load_occupation_data(flumph.name)
+        if data.get("stripminer_occupation_id", None) is not None:
+            occupation = StripminerOccupation(flumph)
         else:
-            raise TypeError(f"unknown OccupationInfo type: {type(occupation_info)}")
+            raise TypeError(f"could not discern occupation type from data: {ujson.dumps(data)}")
         return occupation
 
     @staticmethod
-    def create_stripminer(db_session, flumph):
-        occupation = Stripminer(flumph)
-        Info.save(db_session, occupation)
+    def create_stripminer(flumph):
+        occupation = StripminerOccupation(flumph)
         return occupation

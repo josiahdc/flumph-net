@@ -1,21 +1,21 @@
-from src.organization.cloister.directive.directive import Directive
+import ujson
+
 from src.organization.cloister.directive.stripmine_directive import StripmineDirective
-from src.organization.cloister.directive.stripmine_directive_info import StripmineDirectiveInfo
-from src.orm.info import Info
 
 
 class DirectiveFactory:
     @staticmethod
-    def recover(db_session, cloister):
-        directive_info = Directive.retrieve_info(db_session, cloister.name)
-        if isinstance(directive_info, StripmineDirectiveInfo):
-            directive = StripmineDirective(cloister)
+    def recover(hoard, cloister):
+        data = hoard.load_directive_data(cloister)
+        if data.get("stripmine_directive_id", None) is not None:
+            directive = StripmineDirective(cloister, directive_id=data["directive_id"])
         else:
-            raise TypeError(f"unknown DirectiveInfo type: {type(directive_info)}")
+            raise TypeError(f"could not discern directive type from data: {ujson.dumps(data)}")
         return directive
 
     @staticmethod
-    def create_stripmining_directive(db_session, cloister):
+    def create_stripmining_directive(hoard, cloister):
         directive = StripmineDirective(cloister)
-        Info.save(db_session, directive)
+        directive_id = hoard.insert_directive(directive)
+        directive.set_directive_id(directive_id)
         return directive

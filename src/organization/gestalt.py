@@ -1,44 +1,27 @@
-from loguru import logger
-
-from src.common.exception import NoHomeAvailableError
-from src.common.location import Location
-from src.common.orientation import Orientation
+from src.database.hoard.hoard import Hoard
 from src.flumph.flumph_factory import FlumphFactory
 from src.organization.cloister.cloister_factory import CloisterFactory
-from src.orm import Session
 
 
 class Gestalt:
-    def __init__(self):
-        cloister_name = "cloister-0"
-        db_session = Session()
-        self.cloister = CloisterFactory.recover(db_session, cloister_name)
-        if self.cloister is None:
-            cloister_origin = Location(-1700, -700, 70, Orientation.NORTH)
-            self.cloister = CloisterFactory.create_stripmine(db_session, cloister_name, cloister_origin)
-        db_session.commit()
-        db_session.close()
+    def __init__(self, database_connector):
+        self._hoard = Hoard(database_connector)
+        self._cloisters = CloisterFactory.recover_all_cloisters(self._hoard)
+
+    def shutdown(self):
+        for cloister in self._cloisters:
+            self._hoard.save_cloister(cloister)
+            self._hoard.save_directive(cloister.directive)
+            # for home in cloister.homes:
+            #     self._hoard.save_home(home)
+
+    def add_cloister(self, cloister_name, origin):
+        cloister = CloisterFactory.create_stripmine(self._hoard, cloister_name, origin)
+        self._cloisters.append(cloister)
 
     def handle_connection(self, executor):
-        db_session = Session()
-        flumph = FlumphFactory.recover(db_session, executor, self.cloister)
+        flumph = FlumphFactory.recover(self._hoard, executor, self.cloister)
         if flumph is None:
-            try:
-                flumph = FlumphFactory.create_stripminer(
-                    db_session,
-                    executor,
-                    self.cloister,
-                    self.cloister.origin.duplicate()
-                )
-                db_session.commit()
-                db_session.close()
-            except NoHomeAvailableError as exception:
-                logger.error(
-                    f"{exception.cloister_name} has no available homes for {exception.flumph_name}: {exception}")
-                db_session.rollback()
-                db_session.close()
-                return
-        # try:
-        #     do_task(Reset(flumph))
-        # except StuckFlumphError as exception:
-        #     logger.error(f"{exception.flumph_name} got stuck: {exception}")
+            flumph = FlumphFactory.create_stripminer(executor, self.cloister, self.cloister.origin.duplicate())
+        flumph.work()
+        self._hoard.save_flumph(flumph)

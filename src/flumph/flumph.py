@@ -1,27 +1,27 @@
 from src.common.exception import CannotMoveError
-from src.flumph.flumph_info import FlumphInfo
 
 
 class Flumph:
-    def __init__(self, executor, cloister, name, location):
+    def __init__(self, executor, cloister, name, location, flumph_id=None):
         self._executor = executor
-        self._cloister = cloister
+        self.cloister = cloister
         self.name = name
         self.location = location
+        self.flumph_id = flumph_id
         self.occupation = None
+        self.home = None
 
-    def generate_info(self, db_session):
-        return FlumphInfo(self._cloister.retrieve_self_info(db_session), self.name, self.location)
-
-    def retrieve_self_info(self, db_session):
-        return self.retrieve_info(db_session, self.name)
-
-    @staticmethod
-    def retrieve_info(db_session, name):
-        return db_session.query(FlumphInfo).filter(FlumphInfo.name == name).one_or_none()
+    def set_flumph_id(self, flumph_id):
+        self.flumph_id = flumph_id
 
     def set_occupation(self, occupation):
         self.occupation = occupation
+
+    def set_home(self, home):
+        self.home = home
+
+    def work(self):
+        self.occupation.work()
 
     def energy(self):
         return int(self._executor.execute_function("computer.energy()")[0])

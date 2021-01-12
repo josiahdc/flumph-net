@@ -1,31 +1,41 @@
 from loguru import logger
 
-from src.config import CLOISTER_INITIAL_HOME_COUNT
+from src.common.location import Location
 from src.organization.cloister.cloister import Cloister
 from src.organization.cloister.directive.directive_factory import DirectiveFactory
-from src.orm.info import Info
 
 
 class CloisterFactory:
     @staticmethod
-    def recover(db_session, cloister_name):
-        cloister_info = Cloister.retrieve_info(db_session, cloister_name)
-        if cloister_info is not None:
-            logger.info(f"loaded {cloister_name}")
-            cloister = Cloister(cloister_name, cloister_info.origin)
-            directive = DirectiveFactory.recover(db_session, cloister)
+    def recover_all_cloisters(hoard):
+        cloisters = []
+        data = hoard.load_all_cloister_data()
+        for cloister_data in data:
+            cloister_name = cloister_data["cloister_name"]
+            cloister_origin = Location.deserialize(cloister_data["cloister_origin"])
+            cloister_id = cloister_data["cloister_id"]
+            logger.info(f"loading {cloister_name}")
+            cloister = Cloister(cloister_name, cloister_origin, cloister_id=cloister_id)
+            directive = DirectiveFactory.recover(hoard, cloister)
             cloister.set_directive(directive)
-        else:
-            logger.info(f"{cloister_name} does not exist")
-            cloister = None
-        return cloister
+            # home_data = hoard.load_all_home_data(cloister)
+            # for home_row in home_data:
+            #     home = Home(
+            #         cloister,
+            #         Location.deserialize(home_row["cloister_origin"]),
+            #         home_row["flumph_name"],
+            #         home_row["home_id"]
+            #     )
+            #     cloister.add_home(home)
+            cloisters.append(cloister)
+        return cloisters
 
     @staticmethod
-    def create_stripmine(db_session, cloister_name, origin):
+    def create_stripmine(hoard, cloister_name, origin):
         logger.info(f"creating {cloister_name}")
         cloister = Cloister(cloister_name, origin)
-        Info.save(db_session, cloister)
-        directive = DirectiveFactory.create_stripmining_directive(db_session, cloister)
+        cloister_id = hoard.insert_cloister(cloister)
+        cloister.set_cloister_id(cloister_id)
+        directive = DirectiveFactory.create_stripmining_directive(hoard, cloister)
         cloister.set_directive(directive)
-        cloister.designate_homes(db_session, 0, CLOISTER_INITIAL_HOME_COUNT)
         return cloister

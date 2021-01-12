@@ -1,19 +1,17 @@
 version: "3.8"
 
 services:
-  redis:
-    image: redis:6.0.9-alpine
-    volumes:
-      - flumph-net-redis:/data
-    ports:
-      - "7740:6379"
-
-  redis-commander:
-    image: rediscommander/redis-commander:latest
+  postgres:
+    image: postgres:13.1-alpine
+    restart: always
     environment:
-      - REDIS_HOSTS=redis
+      POSTGRES_USER: flumphNet
+      POSTGRES_PASSWORD: flumphsAreFriends
+      POSTGRES_DB: flumph_net
+    volumes:
+      - flumph-net-data:/var/lib/postgresql/data
     ports:
-      - "7741:8081"
+      - "7740:5432"
 
 volumes:
-  flumph-net-redis:
+  flumph-net-data:

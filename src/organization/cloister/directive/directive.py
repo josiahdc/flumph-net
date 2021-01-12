@@ -1,25 +1,18 @@
 from abc import ABC, abstractmethod
 
-from src.organization.cloister.cloister_info import CloisterInfo
-from src.organization.cloister.directive.directive_info import DirectiveInfo
-
 
 class Directive(ABC):
-    def __init__(self, cloister):
+    def __init__(self, cloister, directive_id=None):
         self.cloister = cloister
+        self.tickets = []
+        self.directive_id = directive_id
 
-    def retrieve_self_info(self, db_session):
-        return self.retrieve_info(db_session, self.cloister.name)
+    def set_directive_id(self, directive_id):
+        self.directive_id = directive_id
 
-    @staticmethod
-    def retrieve_info(db_session, cloister_name):
-        return db_session.query(DirectiveInfo).join(CloisterInfo). \
-            filter(CloisterInfo.name == cloister_name).one_or_none()
-
-    @abstractmethod
-    def generate_info(self, db_session):
-        pass
+    def add_ticket(self, ticket):
+        self.tickets.append(ticket)
 
     @abstractmethod
-    def assign_ticket(self, flumph):
+    def get_ticket(self, flumph):
         pass

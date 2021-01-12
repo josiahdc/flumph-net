@@ -1,46 +1,50 @@
 from loguru import logger
 
-from src.common.exception import NoHomeAvailableError
 from src.common.location import Location
-from src.organization.cloister.cloister_info import CloisterInfo
 from src.organization.cloister.home import Home
 
 
 class Cloister:
-    def __init__(self, name, origin):
+    def __init__(self, name, origin, cloister_id=None):
         self.name = name
         self.origin = origin
-        self._directive = None
+        self.cloister_id = cloister_id
+        self.homes = []
+        self.directive = None
 
-    def generate_info(self, db_session):
-        return CloisterInfo(self.name, self.origin)
-
-    def retrieve_self_info(self, db_session):
-        return self.retrieve_info(db_session, self.name)
-
-    @staticmethod
-    def retrieve_info(db_session, name):
-        return db_session.query(CloisterInfo).filter(CloisterInfo.name == name).one_or_none()
+    def set_cloister_id(self, cloister_id):
+        self.cloister_id = cloister_id
 
     def set_directive(self, directive):
-        self._directive = directive
+        self.directive = directive
 
-    def designate_homes(self, db_session, start_index, end_index):
-        logger.info(f"designating homes {start_index} - {end_index} for {self.name}")
-        home_origin_location = Location(self.origin.x + 5, self.origin.z + 2, self.origin.y, self.origin.orientation)
-        for index in range(start_index, end_index):
-            new_home_location = home_origin_location.duplicate()
-            new_home_location.x += index
-            home = Home(self.retrieve_self_info(db_session), new_home_location)
-            db_session.add(home)
+    def add_home(self, home):
+        self.homes.append(home)
 
-    def assign_home(self, db_session, flumph):
+    def add_ticket(self, ticket):
+        self.directive.add_ticket(ticket)
+
+    def assign_home(self, flumph):
         logger.info(f"assigning a home to {flumph.name}")
-        home = db_session.query(Home).filter(CloisterInfo.name == self.name).filter(Home.flumph_info == None).first()
-        if home is None:
-            raise NoHomeAvailableError(flumph.name, self.name)
+        if len(self.homes) > 0:
+            proposed_home_location = self.homes[-1].origin.duplicate()
+            proposed_home_location.x += 1
         else:
-            home.flumph_info = flumph.retrieve_self_info(db_session)
+            proposed_home_location = Location(
+                self.origin.x + 5,
+                self.origin.z + 2,
+                self.origin.y,
+                self.origin.orientation
+            )
+        home = Home(self, proposed_home_location, flumph.name)
+        self.homes.append(home)
+        return home
 
-    def assign_ticket(self, flumph):
-        self._directive.assign_ticket(flumph)
+    def retrieve_home(self, flumph):
+        for home in self.homes:
+            if home.flumph_name == flumph.name:
+                return home
+        raise ValueError(f"{flumph} does not have a home assigned with {self.name}")
+
+    def get_ticket(self, flumph):
+        self.directive.get_ticket(flumph)
