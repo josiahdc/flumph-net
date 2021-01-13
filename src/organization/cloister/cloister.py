@@ -1,7 +1,7 @@
 from loguru import logger
 
 from src.common.location import Location
-from src.organization.cloister.home import Home
+from src.organization.cloister.home_factory import HomeFactory
 
 
 class Cloister:
@@ -18,33 +18,33 @@ class Cloister:
     def set_directive(self, directive):
         self.directive = directive
 
-    def add_home(self, home):
-        self.homes.append(home)
+    def set_homes(self, homes):
+        self.homes = homes
 
-    def add_ticket(self, ticket):
-        self.directive.add_ticket(ticket)
-
-    def assign_home(self, flumph):
-        logger.info(f"assigning a home to {flumph.name}")
+    def allocate_home(self, hoard, flumph):
+        logger.info(f"allocating a home for {flumph.name}")
         if len(self.homes) > 0:
             proposed_home_location = self.homes[-1].origin.duplicate()
             proposed_home_location.x += 1
         else:
             proposed_home_location = Location(
                 self.origin.x + 5,
-                self.origin.z + 2,
+                self.origin.z - 2,
                 self.origin.y,
                 self.origin.orientation
             )
-        home = Home(self, proposed_home_location, flumph.name)
+        home = HomeFactory.create(hoard, self, proposed_home_location, flumph)
         self.homes.append(home)
         return home
 
     def retrieve_home(self, flumph):
         for home in self.homes:
-            if home.flumph_name == flumph.name:
+            if home.flumph_id == flumph.flumph_id:
                 return home
-        raise ValueError(f"{flumph} does not have a home assigned with {self.name}")
+        raise ValueError(f"{flumph} does not have a home allocated in {self.name}")
 
-    def get_ticket(self, flumph):
-        self.directive.get_ticket(flumph)
+    def allocate_ticket(self, flumph):
+        return self.directive.allocate_ticket(flumph)
+
+    def retrieve_ticket(self, flumph):
+        return self.directive.retrieve_ticket(flumph)

@@ -3,6 +3,7 @@ from loguru import logger
 from src.common.location import Location
 from src.organization.cloister.cloister import Cloister
 from src.organization.cloister.directive.directive_factory import DirectiveFactory
+from src.organization.cloister.home_factory import HomeFactory
 
 
 class CloisterFactory:
@@ -18,15 +19,8 @@ class CloisterFactory:
             cloister = Cloister(cloister_name, cloister_origin, cloister_id=cloister_id)
             directive = DirectiveFactory.recover(hoard, cloister)
             cloister.set_directive(directive)
-            # home_data = hoard.load_all_home_data(cloister)
-            # for home_row in home_data:
-            #     home = Home(
-            #         cloister,
-            #         Location.deserialize(home_row["cloister_origin"]),
-            #         home_row["flumph_name"],
-            #         home_row["home_id"]
-            #     )
-            #     cloister.add_home(home)
+            homes = HomeFactory.recover_all_homes(hoard, cloister)
+            cloister.set_homes(homes)
             cloisters.append(cloister)
         return cloisters
 

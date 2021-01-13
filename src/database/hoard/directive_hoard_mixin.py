@@ -16,13 +16,18 @@ class DirectiveHoardMixin:
             )
             directive_id = cursor.fetchone()["directive_id"]
             if isinstance(directive, StripmineDirective):
+                if directive.last_ticket_origin is not None:
+                    last_ticket_origin = directive.last_ticket_origin.serialize()
+                else:
+                    last_ticket_origin = None
                 cursor.execute(
                     """
-                    INSERT INTO stripmine_directive (directive_id)
-                    VALUES (%(directive_id)s);
+                    INSERT INTO stripmine_directive (directive_id, directive_last_ticket_origin)
+                    VALUES (%(directive_id)s, %(directive_last_ticket_origin)s);
                     """,
                     {
-                        "directive_id": directive_id
+                        "directive_id": directive_id,
+                        "directive_last_ticket_origin": last_ticket_origin
                     }
                 )
             else:
@@ -32,7 +37,21 @@ class DirectiveHoardMixin:
     def save_directive(self, directive):
         with self.database_connector.get_cursor() as cursor:
             if isinstance(directive, StripmineDirective):
-                pass
+                if directive.last_ticket_origin is not None:
+                    last_ticket_origin = directive.last_ticket_origin.serialize()
+                else:
+                    last_ticket_origin = None
+                cursor.execute(
+                    """
+                    UPDATE stripmine_directive
+                    SET directive_last_ticket_origin = %(directive_last_ticket_origin)s
+                    WHERE stripmine_directive.directive_id = %(directive_id)s;
+                    """,
+                    {
+                        "directive_id": directive.directive_id,
+                        "directive_last_ticket_origin": last_ticket_origin
+                    }
+                )
             else:
                 raise TypeError(f"unknown Directive type: {type(directive)}")
 

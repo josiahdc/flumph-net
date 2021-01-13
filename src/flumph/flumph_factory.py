@@ -7,28 +7,36 @@ from src.flumph.occupation.occupation_factory import OccupationFactory
 
 class FlumphFactory:
     @staticmethod
-    def recover(hoard, executor, cloister):
+    def flumph_exists(hoard, executor):
         flumph_name = executor.execute_function("robot.name()")[0]
         data = hoard.load_flumph_data(flumph_name)
-        if data is not None:
-            logger.info(f"loaded {flumph_name}")
-            flumph = Flumph(executor, cloister, data["flumph_name"], Location.deserialize(data["flumph_location"]))
-            occupation = OccupationFactory.recover(hoard, flumph)
-            flumph.set_occupation(occupation)
-            home = cloister.retrieve_home(flumph)
-            flumph.set_home(home)
-        else:
-            logger.info(f"{flumph_name} does not exist")
-            flumph = None
+        return data is not None
+
+    @staticmethod
+    def recover(hoard, executor, cloister_registry):
+        flumph_name = executor.execute_function("robot.name()")[0]
+        data = hoard.load_flumph_data(flumph_name)
+        flumph_id = data["flumph_id"]
+        flumph_name = data["flumph_name"]
+        flumph_location = Location.deserialize(data["flumph_location"])
+        cloister = cloister_registry.get_cloister(data["cloister_id"])
+        logger.info(f"loading {flumph_name}")
+        flumph = Flumph(executor, cloister, flumph_name, flumph_location, flumph_id=flumph_id)
+        occupation = OccupationFactory.recover(hoard, flumph)
+        flumph.set_occupation(occupation)
+        home = cloister.retrieve_home(flumph)
+        flumph.set_home(home)
         return flumph
 
     @staticmethod
-    def create_stripminer(executor, cloister, location):
+    def create_stripminer(hoard, executor, cloister, location):
         flumph_name = executor.execute_function("robot.name()")[0]
         logger.info(f"creating {flumph_name}")
         flumph = Flumph(executor, cloister, flumph_name, location)
-        occupation = OccupationFactory.create_stripminer(flumph)
+        flumph_id = hoard.insert_flumph(flumph)
+        flumph.set_flumph_id(flumph_id)
+        occupation = OccupationFactory.create_stripminer(hoard, flumph)
         flumph.set_occupation(occupation)
-        home = cloister.assign_home(flumph)
+        home = cloister.allocate_home(hoard, flumph)
         flumph.set_home(home)
         return flumph
